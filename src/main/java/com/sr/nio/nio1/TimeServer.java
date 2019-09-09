@@ -30,7 +30,7 @@ class MultiplexerTimeServer implements Runnable{
             channel.configureBlocking(false);
             // 第二个参数backlog是指请求server建立连接，但是server没有处理的连接允许的数量
             channel.socket().bind(new InetSocketAddress(port), 1024);
-            // 将channel注册到selector上 并监听OP_ACCEPT操作位，类似时间监听，表示服务端监听到了客户连接
+            // 将channel注册到selector上 并监听OP_ACCEPT操作位，类似事件监听，表示服务端监听到了客户连接
             channel.register(selector, SelectionKey.OP_ACCEPT);
             System.out.println("The time server is start in port:" + port);
         } catch (IOException e) {
@@ -39,6 +39,7 @@ class MultiplexerTimeServer implements Runnable{
         }
     }
 
+    // 这段代码与客户端基本一致，客户端增加连接
     public void run() {
        while (!stop){
            try {
@@ -87,7 +88,7 @@ class MultiplexerTimeServer implements Runnable{
                 sc.register(selector, SelectionKey.OP_READ);
                 // 这里相当于完成三次握手
             }
-            // 判断此丽娜姐是否已经准备好读取
+            // 判断此键是否已经准备好读取
             if (key.isReadable()){
                 SocketChannel sc = (SocketChannel) key.channel();
                 ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
