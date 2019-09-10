@@ -41,6 +41,7 @@ class MultiplexerTimeServer implements Runnable{
 
     // 这段代码与客户端基本一致，客户端增加连接
     public void run() {
+        // 遍历查询 selectionKey ，如果查询到则处理，针对连接或数据不同处理
        while (!stop){
            try {
                // 表示休眠时间
