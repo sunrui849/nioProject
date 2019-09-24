@@ -132,8 +132,10 @@ class HttpFileServerHandler extends SimpleChannelInboundHandler<FullHttpRequest>
 
         if (file.isDirectory()) {
             if (uri.endsWith("/")){
+                // 返回目录下文件列表
                 sendListing(ctx, file);
             } else {
+                // 不是以/结尾的重定向到以/结尾
                 sendRedirect(ctx, uri + '/');
             }
             return;
