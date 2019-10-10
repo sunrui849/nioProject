@@ -4,8 +4,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
-
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -13,13 +13,14 @@ import java.util.Map;
  * Created by Administrator on 2019/10/8.
  */
 public class NettyMessageEncoder extends MessageToMessageEncoder<NettyMessage>{
-    private MarshallingEncoder marshallingEncoder;
+    private NettyMarshallingEncoder marshallingEncoder;
 
     public NettyMessageEncoder() throws IOException{
-        this.marshallingEncoder = new MarshallingEncoder();
+        marshallingEncoder = MarshallingCodecFactory.buildMarshallingEncoder();
     }
 
-    protected void encode(ChannelHandlerContext channelHandlerContext,
+    @Override
+    protected void encode(ChannelHandlerContext ctx,
                           NettyMessage msg, List<Object> list) throws Exception {
         if (msg == null || msg.getHeader() == null){
             throw new Exception("The encode message is null");
@@ -38,17 +39,14 @@ public class NettyMessageEncoder extends MessageToMessageEncoder<NettyMessage>{
         Object value = null;
         for (Map.Entry<String, Object> param : msg.getHeader().getAttachment().entrySet()){
             key = param.getKey();
-            keyArray = key.getBytes("UTF-8");
+            keyArray = key.getBytes(StandardCharsets.UTF_8);
             sendBuf.writeInt(keyArray.length);
             sendBuf.writeBytes(keyArray);
             value = param.getValue();
-            marshallingEncoder.encode(value, sendBuf);
+            marshallingEncoder.encode(ctx, value, sendBuf);
         }
-        key = null;
-        keyArray = null;
-        value = null;
         if (msg.getBody() != null){
-            marshallingEncoder.encode(msg.getBody(), sendBuf);
+            marshallingEncoder.encode(ctx, msg.getBody(), sendBuf);
         }else {
             sendBuf.writeInt(0);
         }
