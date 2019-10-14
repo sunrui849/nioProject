@@ -50,6 +50,11 @@ public class NettyMessageEncoder extends MessageToMessageEncoder<NettyMessage>{
         }else {
             sendBuf.writeInt(0);
         }
-        sendBuf.setInt(4, sendBuf.readableBytes());
+        //更新消息长度字段的值，至于为什么-8，是因为8是长度字段后的偏移量，LengthFieldBasedFrameDecoder的源码中
+        //对长度字段和长度的偏移量之和做了判断，如果不-8，会导致LengthFieldBasedFrameDecoder解码返回null
+        //这是 《Netty权威指南》中的写错的地方《引自 https://www.cnblogs.com/manmanrenshenglu/p/9264769.html》
+        // todo 后面需要深入了解一下这里
+        sendBuf.setInt(4, sendBuf.readableBytes() - 8);
+        list.add(sendBuf);// 书中没有这段代码，不加这段代码编码失效，消息发送不过去
     }
 }

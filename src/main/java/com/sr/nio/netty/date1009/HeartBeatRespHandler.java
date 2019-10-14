@@ -23,6 +23,6 @@ public class HeartBeatRespHandler extends ChannelHandlerAdapter {
         Header header = new Header();
         header.setType(MessageType.HEARTBEAT_RESP);
         message.setHeader(header);
-        return null;
+        return message;
     }
 }
