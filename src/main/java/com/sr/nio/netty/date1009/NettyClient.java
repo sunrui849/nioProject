@@ -22,10 +22,9 @@ public class NettyClient {
     private static final String LOCAL_HOST = "127.0.0.1";
     private static final int LOCAL_PORT = 8684;
     private ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-
+    private EventLoopGroup group = new NioEventLoopGroup();
     public void connect(String host, int port) throws Exception{
         try {
-            EventLoopGroup group = new NioEventLoopGroup();
             Bootstrap client = new Bootstrap();
             client.group(group)
                     .channel(NioSocketChannel.class)
@@ -48,9 +47,10 @@ public class NettyClient {
                 @Override
                 public void run() {
                     try {
+                        System.out.println("重连。。。。");
                         TimeUnit.SECONDS.sleep(5);
                         try {
-                            connect(LOCAL_HOST, LOCAL_PORT);
+                            connect("127.0.0.1", 8000); // 重连的地址是server的地址
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -69,10 +69,6 @@ public class NettyClient {
 class TestHandler2 extends ChannelHandlerAdapter{
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        byte[] req = "QUERY TIME ORDER".getBytes();
-        ByteBuf firstMessage = Unpooled.buffer(req.length);
-        firstMessage.writeBytes(req);
         System.out.println("233333333333333333");
-        ctx.writeAndFlush("ddddddddd");
     }
 }
